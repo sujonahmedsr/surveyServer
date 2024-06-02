@@ -37,7 +37,11 @@ async function run() {
 
     const surveyCollections = client.db('surveySky').collection('survey');
 
-    app.get('/survey',)
+    app.get('/survey', async(res, req)=>{
+      const cursor = surveyCollections.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
 
 
 
