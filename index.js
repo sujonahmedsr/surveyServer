@@ -36,6 +36,7 @@ async function run() {
 
 
     const surveyCollections = client.db('surveySky').collection('survey')
+    const usersCollections = client.db('surveySky').collection('users')
 
     app.get('/survey', async (req, res) => {
       const cursor = surveyCollections.find()
@@ -47,6 +48,24 @@ async function run() {
       const id = req.params.id
       const query = { _id : new ObjectId(id)}
       const result = await surveyCollections.findOne(query)
+      res.send(result)
+    })
+
+
+    app.post('/users', async(req, res)=>{
+      const userInfo = req.body
+      const query = {email : userInfo.email}
+      const isExsisting = await usersCollections.findOne(query)
+      if(isExsisting){
+        return res.send({ message: 'already email exists', insertedId: null })
+      }
+      const result = await usersCollections.insertOne(userInfo)
+      res.send(result)
+    })
+
+    app.get('/users', async(req, res)=>{
+      const cursor = usersCollections.find()
+      const result = await cursor.toArray()
       res.send(result)
     })
 
