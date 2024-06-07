@@ -3,6 +3,7 @@ const cors = require('cors')
 const app = express()
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const stripe = require('stripe')('sk_test_51PM0BNBzfIvfzi4HZRk47PJWOuRhuPUdBNO24R6ebusAxzVqJprz5T3HrqJxUJ57GwTTjfAPQpOr7rzUO0AYNrbb00A2QslUu1')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
@@ -41,6 +42,7 @@ async function run() {
     const surveyCollections = client.db('surveySky').collection('survey')
     const usersCollections = client.db('surveySky').collection('users')
     const commentsCollections = client.db('surveySky').collection('comments')
+    const paymentsCollection = client.db('surveySky').collection('payments')
 
 
     // for jwt token
@@ -158,6 +160,45 @@ async function run() {
       const query = { _id: new ObjectId(id) }
       const result = await usersCollections.deleteOne(query)
       res.send(result)
+    })
+
+
+    // paymnet 
+    app.post('/create-payment-intent', async(req, res)=>{
+      const {price} = req.body
+      const amount = parseInt(price * 100)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ["card"],
+      })
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      })
+    })
+
+
+    app.get('/payments/:email', verifyToken, async (req, res) => {
+      const email = req.params.email
+      // problem 1  solve
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'forbideen access' })
+      }
+      const cursor = paymentsCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    app.get('/payments', async(req, res)=>{
+      const cursor = paymentsCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    app.post('/payments', async(req, res)=>{
+      const payments = req.body
+      const resultPayment = await paymentsCollection.insertOne(payments)
+      res.send(resultPayment)
     })
 
 
