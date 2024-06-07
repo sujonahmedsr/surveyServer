@@ -11,6 +11,8 @@ app.use(
     cors({
         origin: [
             "http://localhost:5173",
+            "https://surveysky.netlify.app",
+            "https://surveysky-c627d.web.app"
         ]
     })
 );
