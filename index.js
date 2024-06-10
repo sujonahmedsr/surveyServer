@@ -13,7 +13,7 @@ app.use(
         origin: [
             "http://localhost:5173",
             "https://surveysky.netlify.app",
-            "https://surveysky-c627d.web.app"
+            "https://surveysky-c627d.web.app",
         ]
     })
 );
@@ -34,9 +34,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-
-
+    // await client.connect();
 
 
     const surveyCollections = client.db('surveySky').collection('survey')
@@ -80,6 +78,12 @@ async function run() {
       const id = req.params.id
       const query = { _id : new ObjectId(id)}
       const result = await surveyCollections.findOne(query)
+      res.send(result)
+    })
+
+    app.post('/survey',  async (req, res) => {
+      const surveyItem = req.body
+      const result = await surveyCollections.insertOne(surveyItem)
       res.send(result)
     })
 
