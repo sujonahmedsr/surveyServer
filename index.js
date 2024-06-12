@@ -101,6 +101,13 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/survey/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)}
+      const result = await surveyCollections.deleteOne(query)
+      res.send(result)
+    })
+
     // for comments 
     app.get('/comments', async (req, res) => {
       const cursor = commentsCollections.find()
