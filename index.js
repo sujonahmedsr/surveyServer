@@ -101,6 +101,24 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/surveys/:id', async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          title: item.name,
+          category: item.category,
+          ccreated_at: item.ccreated_at,
+          description: item.description,
+          image: item.image,
+        }
+      }
+
+      const result = await surveyCollections.updateOne(filter, updatedDoc)
+      res.send(result);
+    })
+
     app.delete('/survey/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id)}
